@@ -3,4 +3,6 @@ project(KRY_RSA)
 
 set(CMAKE_CXX_STANDARD 14)
 
-add_executable(KRY_RSA main.cpp)
+find_library(gmp gmp PATHS "/usr/lib/x86_64-linux-gnu/openssl-1.0.2/engines")
+add_executable(KRY_RSA src/main.cpp src/RSA.cpp src/RSA.h)
+target_link_libraries(KRY_RSA gmp)
