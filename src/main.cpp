@@ -5,10 +5,6 @@
 
 using namespace std;
 
-void help(){
-
-}
-
 int main(int argc, char **argv) {
     int bits;
 

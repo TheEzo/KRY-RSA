@@ -13,11 +13,7 @@
 using namespace std;
 
 
-RSA::RSA() {
-    mpz_init(n);
-    mpz_set_ui(n, 0);
-
-}
+RSA::RSA() {}
 
 RSA::~RSA() = default;
 
@@ -32,7 +28,6 @@ void RSA::generate(int bits) {
     mpz_init(tmp);
     mpz_init(tmp2);
     mpz_init(phi);
-    mpz_init(d);
 
     get_prime(state, &p, bits/2);
     get_prime(state, &q, bits/2);
@@ -49,6 +44,8 @@ void RSA::generate(int bits) {
         else
             break;
     }
+    mpz_init(d);
+
     inv_mod(&d, &e, &phi);
     gmp_printf("%#Zx %#Zx %#Zx %#Zx %#Zx\n", p, q, n, e, d);
 
@@ -56,21 +53,10 @@ void RSA::generate(int bits) {
     mpz_clear(q);
     mpz_clear(n);
     mpz_clear(e);
-    mpz_clear(tmp);
-    mpz_clear(tmp2);
     mpz_clear(phi);
     mpz_clear(d);
-
-//    gmp_printf("%Zd\n", p);
-//    gmp_printf("%#Zx\n", p);
-//    gmp_printf("%Zd\n", q);
-//    gmp_printf("%#Zx\n", q);
-//
-//
-//    gmp_printf("%Zd\n", n);
-//    gmp_printf("%#Zx\n", n);
-
-
+    mpz_clear(tmp);
+    mpz_clear(tmp2);
 }
 
 
@@ -124,6 +110,8 @@ bool RSA::lehmann(mpz_t *n, int k, gmp_randstate_t s, int bits) {
             k--;
         }
         else{
+            mpz_clear(e);
+            mpz_clear(a);
             mpz_clear(res);
             mpz_clear(tmp);
             mpz_clear(tmp2);
@@ -145,23 +133,31 @@ void RSA::gcd(mpz_t *dst, mpz_t *a, mpz_t *b) {
 }
 
 void RSA::inv_mod(mpz_t *dst, mpz_t *e, mpz_t *phi) {
-    mpz_t i;
-    mpz_t a;
-    mpz_t tmp;
-    mpz_init(a);
-    mpz_init(tmp);
-    mpz_mod(a, *e, *phi);
+    mpz_t g, h, y;
+    mpz_t w, z, v, r;
+    mpz_init_set_ui(w, 1);
+    mpz_init_set_ui(z, 0);
+    mpz_init_set_ui(v, 0);
+    mpz_init_set_ui(r, 1);
+    mpz_init_set(g, *phi);
+    mpz_init_set(h, *e);
+    mpz_init(y);
 
-    mpz_init_set_ui(i, 1);
-    while(mpz_cmp(i, *phi) < 0){
-        mpz_mul(tmp, a, i);
-        mpz_mod(tmp, tmp, *phi);
-        if(mpz_cmp_ui(tmp, 1) == 0){
-            mpz_set(*dst, i);
-            return;
-        }
-        mpz_add_ui(i, i, 1);
+    while (mpz_cmp_ui(h, 0) > 0){
+        mpz_div(y, g, h);
+        update(&g, &h, &y);
+        update(&w, &z, &y);
+        update(&v, &r, &y);
     }
+    mpz_mod(*dst, v, *phi);
+
+    mpz_clear(g);
+    mpz_clear(h);
+    mpz_clear(y);
+    mpz_clear(w);
+    mpz_clear(z);
+    mpz_clear(v);
+    mpz_clear(r);
 }
 
 void RSA::encrypt(char **argv) {
@@ -206,4 +202,15 @@ void RSA::decrypt(char **argv) {
     mpz_clear(n);
     mpz_clear(c);
     mpz_clear(dec);
+}
+
+void RSA::update(mpz_t *a, mpz_t *b, mpz_t *y){
+    mpz_t tmp;
+    mpz_init_set(tmp, *b);
+
+    mpz_mul(*b, *y, tmp);
+    mpz_sub(*b, *a, *b);
+    mpz_swap(tmp, *a);
+
+    mpz_clear(tmp);
 }

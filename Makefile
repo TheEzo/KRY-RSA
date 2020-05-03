@@ -2,9 +2,9 @@
 # KRY
 
 CC=g++
-FLAGS=-Wall -Wextra -pedantic -lgmpxx -lgmp
+FLAGS=-Wall -Wextra -pedantic -Werror -lgmpxx -lgmp
 BIN=kry
-SRC=src/main.cpp
+SRC=src/main.cpp src/RSA.cpp
 ZIP=xwilla00.zip
 
 default:
