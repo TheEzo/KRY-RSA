@@ -49,10 +49,17 @@ void RSA::generate(int bits) {
         else
             break;
     }
-
     inv_mod(&d, &e, &phi);
     gmp_printf("%#Zx %#Zx %#Zx %#Zx %#Zx\n", p, q, n, e, d);
 
+    mpz_clear(p);
+    mpz_clear(q);
+    mpz_clear(n);
+    mpz_clear(e);
+    mpz_clear(tmp);
+    mpz_clear(tmp2);
+    mpz_clear(phi);
+    mpz_clear(d);
 
 //    gmp_printf("%Zd\n", p);
 //    gmp_printf("%#Zx\n", p);
@@ -180,5 +187,23 @@ void RSA::encrypt(char **argv) {
 }
 
 void RSA::decrypt(char **argv) {
+    mpz_t d, n, c, dec;
+    string in = argv[2];
+    in = in.substr(2,in.size());
+    mpz_init_set_str(d, in.c_str(), 16);
+    in = argv[3];
+    in = in.substr(2,in.size());
+    mpz_init_set_str(n, in.c_str(), 16);
+    in = argv[4];
+    in = in.substr(2,in.size());
+    mpz_init_set_str(c, in.c_str(), 16);
 
+    mpz_init(dec);
+    mpz_powm(dec, c, d, n);
+    gmp_printf("%#Zx\n", dec);
+
+    mpz_clear(d);
+    mpz_clear(n);
+    mpz_clear(c);
+    mpz_clear(dec);
 }

@@ -26,7 +26,10 @@ int main(int argc, char **argv) {
             }
         }
         else if(strcmp(argv[1], "-d") == 0){
-            rsa.decrypt(argv);
+            if(argc == 5)
+                rsa.decrypt(argv);
+            else
+                cerr << "Incorrect arg count" << endl;
         }
         else if(strcmp(argv[1], "-b") == 0){
             exit(0);
