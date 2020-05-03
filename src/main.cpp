@@ -1,3 +1,8 @@
+/**
+ * KRY - RSA
+ * Tomas Willaschek
+ * xwilla00
+ */
 #include <iostream>
 #include <cstring>
 

@@ -1,6 +1,8 @@
-//
-// Created by tezzo on 5/2/20.
-//
+/**
+ * KRY - RSA
+ * Tomas Willaschek
+ * xwilla00
+ */
 
 #ifndef KRY_RSA_RSA_H
 #define KRY_RSA_RSA_H

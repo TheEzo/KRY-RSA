@@ -1,12 +1,11 @@
-//
-// Created by tezzo on 5/2/20.
-//
+/**
+ * KRY - RSA
+ * Tomas Willaschek
+ * xwilla00
+ */
 
-#include <cstdlib>
-#include <cmath>
-#include <iostream>
-#include <random>
 #include <string>
+#include <ctime>
 
 #include "RSA.h"
 
@@ -19,7 +18,9 @@ RSA::~RSA() = default;
 
 void RSA::generate(int bits) {
     gmp_randstate_t state;
+    std::time_t t = std::time(0);
     gmp_randinit_default(state);
+    gmp_randseed_ui(state, t);
     mpz_t p, q, n, e, tmp, tmp2, phi, d;
     mpz_init(p);
     mpz_init(q);
