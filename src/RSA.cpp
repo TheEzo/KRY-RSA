@@ -6,10 +6,12 @@
 #include <cmath>
 #include <iostream>
 #include <random>
+#include <string>
 
 #include "RSA.h"
 
 using namespace std;
+
 
 RSA::RSA() {
     mpz_init(n);
@@ -22,58 +24,44 @@ RSA::~RSA() = default;
 void RSA::generate(int bits) {
     gmp_randstate_t state;
     gmp_randinit_default(state);
-    mpz_t p, q, n;
+    mpz_t p, q, n, e, tmp, tmp2, phi, d;
     mpz_init(p);
     mpz_init(q);
     mpz_init(n);
+    mpz_init_set_ui(e, 3);
+    mpz_init(tmp);
+    mpz_init(tmp2);
+    mpz_init(phi);
+    mpz_init(d);
+
     get_prime(state, &p, bits/2);
     get_prime(state, &q, bits/2);
 
-//    gmp_printf("%#Zx %#Zx %#Zx %#Zx %#Zx", p, q, n, e, d);
-
-//    mpz_set_ui(p, 256);
-//    mpz_urandomb(p, state, 12);
-    gmp_printf("%Zd\n", p);
-    gmp_printf("%#Zx\n", p);
-    gmp_printf("%Zd\n", q);
-    gmp_printf("%#Zx\n", q);
-
+    mpz_sub_ui(tmp, p, 1);
+    mpz_sub_ui(tmp2, q, 1);
+    mpz_mul(phi, tmp, tmp2);
     mpz_mul(n, p, q);
-    gmp_printf("%Zd\n", n);
-    gmp_printf("%#Zx\n", n);
+
+    while(true){
+        gcd(&tmp, &e, &phi);
+        if(mpz_cmp_ui(tmp, 1) > 0)
+            mpz_add_ui(e, e, 1);
+        else
+            break;
+    }
+
+    inv_mod(&d, &e, &phi);
+    gmp_printf("%#Zx %#Zx %#Zx %#Zx %#Zx\n", p, q, n, e, d);
 
 
-//    unsigned int p = 13;//get_prime();
-//    unsigned int q = 11;//get_prime();
-//    double n = p*q;
-//    unsigned int e = 7;
+//    gmp_printf("%Zd\n", p);
+//    gmp_printf("%#Zx\n", p);
+//    gmp_printf("%Zd\n", q);
+//    gmp_printf("%#Zx\n", q);
 //
-////    cout << "bits: " << (int)log2(n) +1 << endl;
-//    int msg = 111;
-////    int c = pow(msg, e);
-////    int enc = fmod(c, n);
-////
-////    int d = fmod(1/e, (p-1)*(q-1));
-////    int m = pow(pow(c,d), n);
-//    double track;
-//    double phi = (p-1)*(q-1);
-//    while(e<phi) {
-//        track = gcd(e,phi);
-//        if(track==1)
-//            break;
-//        else
-//            e++;
-//    }
-//    double d1=1/e;
-//    double d=fmod(d1,phi);
-//    double c = pow(msg,e); //encrypt the message
-//    double m = pow(c,d);
-//    c=fmod(c,n);
-//    m=fmod(m,n);
 //
-//    cout << "MSG: " << msg << endl;
-//    cout << "Encrypted: " << c << endl;
-//    cout << "Decrypted: " << m <<  endl;
+//    gmp_printf("%Zd\n", n);
+//    gmp_printf("%#Zx\n", n);
 
 
 }
@@ -149,24 +137,48 @@ void RSA::gcd(mpz_t *dst, mpz_t *a, mpz_t *b) {
     return gcd(dst, b, &tmp);
 }
 
-//int RSA::jacobi(int a, int n){
-//    if(gcd(a, n) != 1)
-//        return 0;
-//    int negative = 1;
-//    while(a > 1){
-//        if(n > a && a % 2 == 1 && n % 2 == 1){
-//            int tmp = a;
-//            a = n;
-//            n = tmp;
-//            if((a % 4) == 3 && (n % 4) == 3)
-//                negative *= -1;
-//            a = a % n;
-//        }
-//        else if(n % 2 == 0){
-//            n = n/2;
-//            negative *= (n % 8) == 3 || n % 8 == 5 ? -1 : 1;
-//        } else
-//            return 0;
-//    }
-//    return negative;
-//}
+void RSA::inv_mod(mpz_t *dst, mpz_t *e, mpz_t *phi) {
+    mpz_t i;
+    mpz_t a;
+    mpz_t tmp;
+    mpz_init(a);
+    mpz_init(tmp);
+    mpz_mod(a, *e, *phi);
+
+    mpz_init_set_ui(i, 1);
+    while(mpz_cmp(i, *phi) < 0){
+        mpz_mul(tmp, a, i);
+        mpz_mod(tmp, tmp, *phi);
+        if(mpz_cmp_ui(tmp, 1) == 0){
+            mpz_set(*dst, i);
+            return;
+        }
+        mpz_add_ui(i, i, 1);
+    }
+}
+
+void RSA::encrypt(char **argv) {
+    mpz_t e, n, m, enc;
+    string in = argv[2];
+    in = in.substr(2,in.size());
+    mpz_init_set_str(e, in.c_str(), 16);
+    in = argv[3];
+    in = in.substr(2,in.size());
+    mpz_init_set_str(n, in.c_str(), 16);
+    in = argv[4];
+    in = in.substr(2,in.size());
+    mpz_init_set_str(m, in.c_str(), 16);
+
+    mpz_init(enc);
+    mpz_powm(enc, m, e, n);
+    gmp_printf("%#Zx\n", enc);
+
+    mpz_clear(e);
+    mpz_clear(n);
+    mpz_clear(m);
+    mpz_clear(enc);
+}
+
+void RSA::decrypt(char **argv) {
+
+}
