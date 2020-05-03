@@ -14,4 +14,5 @@ clean:
 	rm -f ${BIN} ${ZIP}
 
 pack:
-	zip -r ${ZIP} ${SRC} Makefile
+	zip -r ${ZIP} ${SRC} Makefile documentation.pdf src/RSA.h
+
