@@ -6,7 +6,9 @@
 #define KRY_RSA_RSA_H
 
 #include <gmpxx.h>
+#include <random>
 
+using namespace std;
 
 class RSA {
 public:
@@ -14,10 +16,12 @@ public:
     ~RSA();
 
     void generate(int bits);
-    bool is_prime(int a, int n);
+    bool lehmann(mpz_t *n, int k, gmp_randstate_t s, int bits);
 
 private:
-    int gcd(int a, int b);
+    void get_prime(gmp_randstate_t s, mpz_t *dst, int bits);
+    void gcd(mpz_t *dst, mpz_t *a, mpz_t *b);
+    int jacobi(int a, int n);
 
     mpz_class p;
     mpz_class q;
