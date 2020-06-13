@@ -2,5 +2,5 @@
 
 RSA key generator
 - support for 
-- - encrypting
-- - decrypting
+ - encrypting
+ - decrypting
