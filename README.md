@@ -1,6 +1,5 @@
 # KRY-RSA
 
-RSA key generator
-- support for 
- - encrypting
- - decrypting
+- RSA key generator
+- encrypting
+- decrypting
